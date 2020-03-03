@@ -24,26 +24,53 @@ library(nycflights13)
 Make a plot with three facets, one for each airport in the weather data.  The x-axis should be the day of the year (1:365) and the y-axis should be the mean temperature recorded on that day, at that airport.
 ```{r}
 library(lubridate)
-weather %>% mutate(day_of_year = yday(time_hour))
+weather2 = 
+  weather %>% 
+  #filter(origin == "EWR") %>% 
+  mutate(day_of_year = yday(time_hour)) %>% 
+  group_by(origin,day_of_year) %>% 
+  summarise(meantemp = mean(temp,na.rm =TRUE))
+
+bp = ggplot(weather2,aes(x = day_of_year, y = meantemp))+
+  geom_point()
+
+bp + facet_wrap(.~ origin)
 ```
 
 
 Make a non-tidy matrix of that data where each row is an airport and each column is a day of the year.  
 
 ```{r}
-
+weather2 %>% 
+pivot_wider(names_from = day_of_year, values_from = meantemp)
 ```
 
 
 For each (airport, day) contruct a tidy data set of the airport's "performance" as the proportion of flights that departed less than an hour late. 
 ```{r}
+flights2 = flights %>% 
+  mutate(day_of_year = yday(time_hour)) %>% 
+  group_by(origin, day_of_year) %>% 
+  mutate(counts2 = n()) %>% 
+  filter(dep_delay<=60) %>% 
+  mutate(counts1 = n()) %>% 
+  mutate(proportion =counts1/counts2)
+flights2 %>% select(day_of_year,origin,proportion)
+pivot_longer()
 ```
 
 Construct a tidy data set to that give weather summaries for each (airport, day).  Use the total precipitation, minimum visibility, maximum wind_gust, and average wind_speed.  
 ```{r}
+weather3 = weather %>% 
+  mutate(day_of_year = yday(time_hour)) %>% 
+  group_by(origin,day_of_year) %>% 
+  select()
+  
 ```
 
 Construct a linear model to predict the performance of each (airport,day) using the weather summaries and a "fixed effect" for each airport.  Display the summaries.  
+
+hint: lm/performance ~ origin  
 ```{r}
 ```
 
